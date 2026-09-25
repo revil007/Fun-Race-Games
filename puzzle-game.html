@@ -142,11 +142,7 @@ h1{
 
 <div id="board" class="board"></div>
 
-<div class="controls">
-  <button class="btn shuffle" id="shuffleBtn" onclick="shuffleBoard()">🔀 SHUFFLE / RESTART</button>
-</div>
-
-<div class="hint">Tap any tile next to the empty space to slide it.</div>
+<div class="hint">Tap any tile next to the empty space to slide it. One attempt only — no shuffle or restart.</div>
 </div>
 
 <div class="overlay" id="winOverlay">
@@ -159,7 +155,6 @@ h1{
       <div class="statBox"><b id="finalTime">00:00</b><span>TIME</span></div>
     </div>
     <div id="chainBox"></div>
-    <button class="playAgainBtn" onclick="closeOverlayAndShuffle()">Play again</button>
   </div>
 </div>
 
@@ -181,7 +176,7 @@ function tryUnlock(){
   if(entered===START_PASSWORD.toUpperCase() && entered.length>0){
     document.getElementById("lockOverlay").classList.add("hidden");
     document.getElementById("content").classList.add("unlocked");
-    shuffleBoard();
+    startBoard();
   }else{
     document.getElementById("lockError").textContent="Wrong password — try again.";
     input.select();
@@ -193,8 +188,20 @@ document.getElementById("lockInput").addEventListener("keydown",(e)=>{
 
 const SIZE=3; // 3x3 board, 8 tiles + 1 blank
 const SOLVED=[1,2,3,4,5,6,7,8,0]; // 0 = blank
-let board=[...SOLVED];
-let blankIndex=8;
+
+// FIXED starting scramble — same for every team, no random shuffle.
+// Generated once as a guaranteed-SOLVABLE 80-move scramble from the
+// solved state, then hardcoded here so it never changes between
+// page loads/teams. To change the difficulty, generate a new one
+// (ask Claude, or run the same "many random valid slides from
+// solved" approach) and paste the resulting array + blank index
+// below — do NOT hand-edit the numbers, an arbitrary permutation
+// may not be solvable.
+const FIXED_START=[8,3,7,5,0,1,4,2,6];
+const FIXED_BLANK_INDEX=4;
+
+let board=[...FIXED_START];
+let blankIndex=FIXED_BLANK_INDEX;
 let moveCount=0;
 let timerHandle=null;
 let elapsedSec=0;
@@ -263,43 +270,20 @@ function stopTimer(){
   timerHandle=null;
 }
 
-// Guarantee a SOLVABLE shuffle by performing many random valid slides
-// from the solved state, instead of a random permutation (which is only
-// solvable half the time for a sliding puzzle).
-function shuffleBoard(){
-  document.getElementById("winOverlay").classList.remove("show");
-  stopTimer();
-  board=[...SOLVED];
-  blankIndex=8;
+// Loads the FIXED starting scramble (same for every team). No random
+// shuffle, no restart — this is a one-attempt puzzle by design.
+function startBoard(){
+  board=[...FIXED_START];
+  blankIndex=FIXED_BLANK_INDEX;
   moveCount=0;
   elapsedSec=0;
   document.getElementById("moveCount").textContent="0";
   document.getElementById("timeCount").textContent="00:00";
-
-  let lastBlank=-1;
-  const shuffleMoves=120;
-  for(let n=0;n<shuffleMoves;n++){
-    const [r,c]=idxToRowCol(blankIndex);
-    const neighbours=[];
-    if(r>0)neighbours.push(blankIndex-SIZE);
-    if(r<SIZE-1)neighbours.push(blankIndex+SIZE);
-    if(c>0)neighbours.push(blankIndex-1);
-    if(c<SIZE-1)neighbours.push(blankIndex+1);
-    const candidates=neighbours.filter(x=>x!==lastBlank);
-    const pick=candidates[Math.floor(Math.random()*candidates.length)];
-    [board[pick],board[blankIndex]]=[board[blankIndex],board[pick]];
-    lastBlank=blankIndex;
-    blankIndex=pick;
-  }
   render();
 }
 
-function closeOverlayAndShuffle(){
-  shuffleBoard();
-}
-
-// Board is NOT shuffled/built here anymore — it only starts after
-// tryUnlock() confirms the correct password (see above).
+// Board is NOT built here anymore — it only starts after tryUnlock()
+// confirms the correct password (see above).
 </script>
 </body>
 </html>
