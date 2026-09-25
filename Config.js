@@ -24,7 +24,7 @@
 //    then this entry is just a placeholder.
 // ============================================================
 
-const BASE_URL = "https://YOUR-USERNAME.github.io/YOUR-REPO-NAME/";
+const BASE_URL = "https://revil007.github.io/Fun-Race-Games/";
 
 const GAME_ORDER = [
   "puzzle-game.html",
