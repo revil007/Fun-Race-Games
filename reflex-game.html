@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#070a10">
+<title>SCI FUN RACE PART 2 2027 — Reflex Challenge</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;width:100%;min-height:100%}
+body{
+  background:
+    radial-gradient(circle at 20% 15%, rgba(239,68,68,.16), transparent 42%),
+    radial-gradient(circle at 85% 20%, rgba(59,130,246,.16), transparent 42%),
+    radial-gradient(circle at 50% 90%, rgba(250,204,21,.14), transparent 45%),
+    #070a10;
+  color:#fff;font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:20px 16px 40px;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(250,204,21,.55);
+  background:rgba(250,204,21,.08);border-radius:999px;padding:7px 16px;
+  font-size:11px;letter-spacing:2px;color:#fde68a;font-weight:800;margin-bottom:10px;
+}
+h1{
+  font-size:clamp(20px,6vw,28px);font-weight:900;letter-spacing:1px;
+  margin:2px 0 4px;text-align:center;
+}
+.sub{color:#8d99ad;font-size:13px;text-align:center;margin-bottom:16px;max-width:340px}
+
+.targetRow{
+  display:flex;align-items:center;gap:10px;background:#0e1420;border:1.5px solid #263043;
+  border-radius:16px;padding:12px 20px;margin-bottom:18px;
+}
+.targetLabel{font-size:11px;color:#64748b;letter-spacing:1px;font-weight:700}
+.targetSwatch{width:26px;height:26px;border-radius:8px;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.targetName{font-size:16px;font-weight:900;letter-spacing:.5px}
+
+.statsRow{display:flex;gap:10px;margin-bottom:20px}
+.statBox{
+  background:#0e1420;border:1px solid #263043;border-radius:14px;
+  padding:10px 18px;text-align:center;min-width:84px;
+}
+.statBox b{display:block;font-size:20px;font-weight:900}
+.statBox span{display:block;font-size:10px;color:#64748b;letter-spacing:1px;margin-top:2px}
+
+.tapZone{
+  width:min(280px,72vw);aspect-ratio:1/1;border-radius:50%;
+  background:#151b28;border:3px solid #263043;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;color:#4b5568;letter-spacing:1px;text-align:center;
+  cursor:pointer;transition:background-color .08s ease,transform .1s ease,border-color .08s ease;
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
+.tapZone:active{transform:scale(.97)}
+.tapZone.flashCorrect{animation:pulseGood .3s ease}
+.tapZone.flashWrong{animation:pulseBad .3s ease}
+@keyframes pulseGood{0%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes pulseBad{0%{transform:scale(.92)}100%{transform:scale(1)}}
+
+.controls{display:flex;gap:12px;margin-top:24px}
+.btn{
+  border:0;border-radius:14px;padding:13px 22px;font-weight:800;font-size:14px;
+  cursor:pointer;background:#202938;color:#e2e8f0;
+}
+.btn.shuffle{background:linear-gradient(135deg,#facc15,#f59e0b);color:#1a1200}
+
+.hint{color:#4f5b70;font-size:11px;margin-top:18px;text-align:center;max-width:300px}
+
+/* ---- Completion overlay ---- */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(3,6,12,.96);
+  align-items:center;justify-content:center;text-align:center;z-index:50;padding:24px;
+}
+.overlay.show{display:flex}
+.overlayCard{max-width:380px}
+.checkIcon{font-size:clamp(60px,16vw,90px);animation:popIn .5s ease}
+@keyframes popIn{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+.doneTitle{font-size:clamp(24px,7vw,34px);font-weight:900;letter-spacing:1px;margin:8px 0 6px;color:#4ade80}
+.doneSub{color:#c7cfdd;font-size:14px;line-height:1.6;margin-bottom:20px}
+.doneStats{display:flex;gap:8px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.doneStats .statBox{background:rgba(255,255,255,.05);min-width:74px;padding:9px 12px}
+.showStaffBox{
+  background:rgba(74,222,128,.1);border:1.5px solid rgba(74,222,128,.5);
+  border-radius:16px;padding:16px;font-size:13px;color:#bbf7d0;font-weight:700;line-height:1.5;
+}
+.qrBox{
+  background:rgba(59,130,246,.1);border:1.5px solid rgba(59,130,246,.5);
+  border-radius:16px;padding:18px;
+}
+.qrLabel{font-size:13px;font-weight:800;color:#bfdbfe;margin-bottom:12px}
+.qrImg{width:180px;height:180px;border-radius:12px;background:#fff;padding:8px;display:block;margin:0 auto}
+.qrFallback{color:#fca5a5;font-size:12px;padding:20px}
+.qrSub{font-size:12px;color:#93c5fd;margin-top:12px}
+.qrLink{display:inline-block;margin-top:10px;font-size:12px;color:#60a5fa;text-decoration:underline}
+.playAgainBtn{
+  margin-top:18px;background:none;border:0;color:#64748b;font-size:12px;
+  text-decoration:underline;cursor:pointer;padding:8px;
+}
+</style>
+</head>
+<body>
+<span class="badge">🏁 SCI FUN RACE PART 2 2027</span>
+<h1>⚡ REFLEX CHALLENGE</h1>
+<div class="sub">Tap the circle ONLY when it turns the target colour. Ignore every other colour!</div>
+
+<div class="targetRow">
+  <span class="targetLabel">TARGET:</span>
+  <span class="targetSwatch" id="targetSwatch"></span>
+  <span class="targetName" id="targetName">—</span>
+</div>
+
+<div class="statsRow">
+  <div class="statBox"><b id="hitCount">0/8</b><span>HITS</span></div>
+  <div class="statBox"><b id="timeCount">00:00</b><span>TIME</span></div>
+</div>
+
+<div class="tapZone" id="tapZone">WAIT…</div>
+
+<div class="controls">
+  <button class="btn shuffle" id="restartBtn" onclick="startGame()">🔀 RESTART</button>
+</div>
+
+<div class="hint">Only tap when the circle matches the target colour above. A wrong tap locks you out for ~2s — spamming every tap will make you SLOWER, not faster.</div>
+
+<div class="overlay" id="winOverlay">
+  <div class="overlayCard">
+    <div class="checkIcon">✅</div>
+    <div class="doneTitle">TASK COMPLETED!</div>
+    <div class="doneSub">Nice reflexes — target reached.</div>
+    <div class="doneStats">
+      <div class="statBox"><b id="finalHits">8/8</b><span>HITS</span></div>
+      <div class="statBox"><b id="finalTime">00:00</b><span>TIME</span></div>
+      <div class="statBox"><b id="finalAvg">0ms</b><span>AVG REACT</span></div>
+      <div class="statBox"><b id="finalFalse">0</b><span>WRONG TAPS</span></div>
+    </div>
+    <div id="chainBox"></div>
+    <button class="playAgainBtn" onclick="startGame()">Play again</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="chain-logic.js"></script>
+<script>
+const COLOURS=[
+  {name:"RED",hex:"#ef4444"},
+  {name:"BLUE",hex:"#3b82f6"},
+  {name:"GREEN",hex:"#22c55e"},
+  {name:"YELLOW",hex:"#facc15"},
+  {name:"PURPLE",hex:"#a855f7"},
+  {name:"ORANGE",hex:"#f97316"}
+];
+const HITS_NEEDED=8;
+const TRIAL_WINDOW_MS=850;   // how long a colour stays "active" (tappable)
+const GAP_MIN_MS=350, GAP_MAX_MS=900; // idle gap between trials
+// A wrong tap locks the circle for this long — no new trial runs during
+// the lockout, so spam-tapping every colour is actively SLOWER than
+// waiting and reacting only to the real target (spam gets penalised on
+// ~5 out of 6 trials, since only 1 in 6 colours is ever the target).
+const PENALTY_MS=1800;
+
+let target=null;
+let hits=0, misses=0, falseTaps=0;
+let reactionTimes=[];
+let trialActive=false;
+let trialColour=null;
+let trialStartTime=0;
+let trialTimeout=null;
+let gapTimeout=null;
+let penaltyTimeout=null;
+let timerHandle=null;
+let elapsedSec=0;
+let running=false;
+
+function pickTarget(){
+  target=COLOURS[Math.floor(Math.random()*COLOURS.length)];
+  document.getElementById("targetSwatch").style.background=target.hex;
+  document.getElementById("targetName").textContent=target.name;
+}
+
+function formatTime(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+function startTimer(){
+  stopTimer();
+  elapsedSec=0;
+  document.getElementById("timeCount").textContent=formatTime(0);
+  timerHandle=setInterval(()=>{
+    elapsedSec++;
+    document.getElementById("timeCount").textContent=formatTime(elapsedSec);
+  },1000);
+}
+function stopTimer(){
+  clearInterval(timerHandle);
+  timerHandle=null;
+}
+
+function updateHitStat(){
+  document.getElementById("hitCount").textContent=hits+"/"+HITS_NEEDED;
+}
+
+function scheduleNextTrial(){
+  clearTimeout(gapTimeout);
+  const gap=GAP_MIN_MS+Math.random()*(GAP_MAX_MS-GAP_MIN_MS);
+  gapTimeout=setTimeout(runTrial,gap);
+}
+
+function runTrial(){
+  if(!running)return;
+  const zone=document.getElementById("tapZone");
+  trialColour=COLOURS[Math.floor(Math.random()*COLOURS.length)];
+  trialActive=true;
+  trialStartTime=Date.now();
+  zone.style.background=trialColour.hex;
+  zone.textContent="";
+  zone.style.borderColor=trialColour.hex;
+
+  trialTimeout=setTimeout(()=>{
+    if(!trialActive)return; // already handled by a tap
+    trialActive=false;
+    const wasTarget=trialColour.name===target.name;
+    if(wasTarget)misses++;
+    resetZoneIdle();
+    if(running)scheduleNextTrial();
+  },TRIAL_WINDOW_MS);
+}
+
+function resetZoneIdle(){
+  const zone=document.getElementById("tapZone");
+  zone.style.background="";
+  zone.style.borderColor="";
+  zone.textContent=running?"WAIT…":"—";
+}
+
+function handleTap(){
+  if(!running)return;
+  const zone=document.getElementById("tapZone");
+  if(!trialActive){
+    return; // tapping during the idle gap does nothing (no penalty)
+  }
+  trialActive=false;
+  clearTimeout(trialTimeout);
+  const isCorrect=trialColour.name===target.name;
+
+  if(isCorrect){
+    const rt=Date.now()-trialStartTime;
+    reactionTimes.push(rt);
+    hits++;
+    updateHitStat();
+    zone.classList.remove("flashWrong");
+    void zone.offsetWidth;
+    zone.classList.add("flashCorrect");
+    zone.textContent="✓";
+
+    setTimeout(()=>{
+      zone.classList.remove("flashCorrect");
+      resetZoneIdle();
+      if(hits>=HITS_NEEDED){
+        finishGame();
+        return;
+      }
+      scheduleNextTrial();
+    },180);
+  }else{
+    falseTaps++;
+    zone.classList.remove("flashCorrect");
+    void zone.offsetWidth;
+    zone.classList.add("flashWrong");
+    zone.textContent="✗";
+
+    setTimeout(()=>{
+      zone.classList.remove("flashWrong");
+      startPenalty();
+    },180);
+  }
+}
+
+// Wrong-tap lockout — no trial runs while this is showing, so any target
+// that would have appeared during the penalty is simply missed. This is
+// what makes spam-tapping a losing strategy instead of a shortcut.
+function startPenalty(){
+  const zone=document.getElementById("tapZone");
+  zone.style.background="#3f1414";
+  zone.style.borderColor="#ef4444";
+  zone.textContent="⛔ WAIT";
+  clearTimeout(penaltyTimeout);
+  penaltyTimeout=setTimeout(()=>{
+    resetZoneIdle();
+    if(running)scheduleNextTrial();
+  },PENALTY_MS);
+}
+
+function finishGame(){
+  running=false;
+  stopTimer();
+  clearTimeout(trialTimeout);
+  clearTimeout(penaltyTimeout);
+  clearTimeout(gapTimeout);
+  trialActive=false;
+  resetZoneIdle();
+
+  const avg=reactionTimes.length
+    ? Math.round(reactionTimes.reduce((a,b)=>a+b,0)/reactionTimes.length)
+    : 0;
+
+  document.getElementById("finalHits").textContent=hits+"/"+HITS_NEEDED;
+  document.getElementById("finalTime").textContent=formatTime(elapsedSec);
+  document.getElementById("finalAvg").textContent=avg+"ms";
+  document.getElementById("finalFalse").textContent=falseTaps;
+  document.getElementById("winOverlay").classList.add("show");
+  renderChainBox("chainBox");
+}
+
+function startGame(){
+  document.getElementById("winOverlay").classList.remove("show");
+  clearTimeout(trialTimeout);
+  clearTimeout(gapTimeout);
+  clearTimeout(penaltyTimeout);
+  stopTimer();
+
+  hits=0; misses=0; falseTaps=0;
+  reactionTimes=[];
+  trialActive=false;
+  running=true;
+
+  updateHitStat();
+  pickTarget();
+  resetZoneIdle();
+  startTimer();
+  scheduleNextTrial();
+}
+
+document.getElementById("tapZone").addEventListener("click",handleTap);
+
+startGame();
+</script>
+</body>
+</html>

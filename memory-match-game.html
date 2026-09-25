@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#070a10">
+<title>SCI FUN RACE PART 2 2027 — Memory Match</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;width:100%;min-height:100%}
+body{
+  background:
+    radial-gradient(circle at 20% 15%, rgba(168,85,247,.16), transparent 42%),
+    radial-gradient(circle at 85% 20%, rgba(59,130,246,.16), transparent 42%),
+    radial-gradient(circle at 50% 90%, rgba(34,197,94,.14), transparent 45%),
+    #070a10;
+  color:#fff;font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:20px 16px 40px;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(250,204,21,.55);
+  background:rgba(250,204,21,.08);border-radius:999px;padding:7px 16px;
+  font-size:11px;letter-spacing:2px;color:#fde68a;font-weight:800;margin-bottom:10px;
+}
+h1{
+  font-size:clamp(20px,6vw,28px);font-weight:900;letter-spacing:1px;
+  margin:2px 0 4px;text-align:center;
+}
+.sub{color:#8d99ad;font-size:13px;text-align:center;margin-bottom:16px;max-width:340px}
+
+.statsRow{display:flex;gap:10px;margin-bottom:18px}
+.statBox{
+  background:#0e1420;border:1px solid #263043;border-radius:14px;
+  padding:10px 18px;text-align:center;min-width:84px;
+}
+.statBox b{display:block;font-size:20px;font-weight:900}
+.statBox span{display:block;font-size:10px;color:#64748b;letter-spacing:1px;margin-top:2px}
+
+.board{
+  width:min(480px,94vw);
+  display:grid;grid-template-columns:repeat(6,1fr);gap:7px;
+  background:#0b1018;border:1px solid #202938;border-radius:20px;padding:9px;
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
+.card{aspect-ratio:1/1;perspective:600px;cursor:pointer}
+.cardInner{
+  position:relative;width:100%;height:100%;
+  transition:transform .4s cubic-bezier(.4,.2,.2,1);
+  transform-style:preserve-3d;
+}
+.card.flipped .cardInner,.card.matched .cardInner{transform:rotateY(180deg)}
+.cardFace{
+  position:absolute;inset:0;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  backface-visibility:hidden;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.25);
+}
+.cardBack{
+  background:linear-gradient(135deg,#1e293b,#0f172a);
+  border:1.5px solid #334155;font-size:clamp(15px,3.4vw,20px);color:#475569;font-weight:900;
+}
+.cardFront{
+  background:linear-gradient(135deg,#3b2b52,#241a38);
+  border:1.5px solid #a855f7;transform:rotateY(180deg);
+  font-size:clamp(18px,5vw,26px);
+}
+.card.matched .cardFront{
+  background:linear-gradient(135deg,#14532d,#0f2e1c);border-color:#22c55e;
+  opacity:.9;
+}
+.card.matched{cursor:default}
+
+.controls{display:flex;gap:12px;margin-top:22px}
+.btn{
+  border:0;border-radius:14px;padding:13px 22px;font-weight:800;font-size:14px;
+  cursor:pointer;background:#202938;color:#e2e8f0;
+}
+.btn.shuffle{background:linear-gradient(135deg,#facc15,#f59e0b);color:#1a1200}
+
+.hint{color:#4f5b70;font-size:11px;margin-top:18px;text-align:center;max-width:300px}
+
+/* ---- Completion overlay ---- */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(3,6,12,.96);
+  align-items:center;justify-content:center;text-align:center;z-index:50;padding:24px;
+}
+.overlay.show{display:flex}
+.overlayCard{max-width:380px}
+.checkIcon{font-size:clamp(60px,16vw,90px);animation:popIn .5s ease}
+@keyframes popIn{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+.doneTitle{font-size:clamp(24px,7vw,34px);font-weight:900;letter-spacing:1px;margin:8px 0 6px;color:#4ade80}
+.doneSub{color:#c7cfdd;font-size:14px;line-height:1.6;margin-bottom:20px}
+.doneStats{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
+.doneStats .statBox{background:rgba(255,255,255,.05)}
+.showStaffBox{
+  background:rgba(74,222,128,.1);border:1.5px solid rgba(74,222,128,.5);
+  border-radius:16px;padding:16px;font-size:13px;color:#bbf7d0;font-weight:700;line-height:1.5;
+}
+.qrBox{
+  background:rgba(59,130,246,.1);border:1.5px solid rgba(59,130,246,.5);
+  border-radius:16px;padding:18px;
+}
+.qrLabel{font-size:13px;font-weight:800;color:#bfdbfe;margin-bottom:12px}
+.qrImg{width:180px;height:180px;border-radius:12px;background:#fff;padding:8px;display:block;margin:0 auto}
+.qrFallback{color:#fca5a5;font-size:12px;padding:20px}
+.qrSub{font-size:12px;color:#93c5fd;margin-top:12px}
+.qrLink{display:inline-block;margin-top:10px;font-size:12px;color:#60a5fa;text-decoration:underline}
+.playAgainBtn{
+  margin-top:18px;background:none;border:0;color:#64748b;font-size:12px;
+  text-decoration:underline;cursor:pointer;padding:8px;
+}
+</style>
+</head>
+<body>
+<span class="badge">🏁 SCI FUN RACE PART 2 2027</span>
+<h1>🧠 MEMORY MATCH</h1>
+<div class="sub">Flip two cards at a time and find all 18 matching pairs.</div>
+
+<div class="statsRow">
+  <div class="statBox"><b id="moveCount">0</b><span>MOVES</span></div>
+  <div class="statBox"><b id="timeCount">00:00</b><span>TIME</span></div>
+</div>
+
+<div id="board" class="board"></div>
+
+<div class="controls">
+  <button class="btn shuffle" id="restartBtn" onclick="startGame()">🔀 SHUFFLE / RESTART</button>
+</div>
+
+<div class="hint">Tap a card to flip it, then tap another. Matching pairs stay open.</div>
+
+<div class="overlay" id="winOverlay">
+  <div class="overlayCard">
+    <div class="checkIcon">✅</div>
+    <div class="doneTitle">TASK COMPLETED!</div>
+    <div class="doneSub">All 18 pairs found — great memory!</div>
+    <div class="doneStats">
+      <div class="statBox"><b id="finalMoves">0</b><span>MOVES</span></div>
+      <div class="statBox"><b id="finalTime">00:00</b><span>TIME</span></div>
+    </div>
+    <div id="chainBox"></div>
+    <button class="playAgainBtn" onclick="startGame()">Play again</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="chain-logic.js"></script>
+<script>
+// 18 distinct symbols -> 18 pairs -> 36 cards on a 6x6 board.
+const SYMBOLS=[
+  "🏁","🎨","🧠","💎","⚡","🍀","🎯","🔥","🎈",
+  "🚀","🍕","🎵","🌈","🐱","🐶","🦄","🍩","🍔"
+];
+
+let cards=[]; // each: {symbol, matched}
+let flippedIndices=[];
+let moveCount=0;
+let matchedPairs=0;
+let boardLocked=false;
+let timerHandle=null;
+let elapsedSec=0;
+
+function formatTime(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+function startTimer(){
+  stopTimer();
+  elapsedSec=0;
+  document.getElementById("timeCount").textContent=formatTime(0);
+  timerHandle=setInterval(()=>{
+    elapsedSec++;
+    document.getElementById("timeCount").textContent=formatTime(elapsedSec);
+  },1000);
+}
+function stopTimer(){
+  clearInterval(timerHandle);
+  timerHandle=null;
+}
+
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function render(){
+  const boardEl=document.getElementById("board");
+  boardEl.innerHTML="";
+  cards.forEach((card,i)=>{
+    const el=document.createElement("div");
+    el.className="card"+(card.flipped?" flipped":"")+(card.matched?" matched":"");
+    el.innerHTML=
+      '<div class="cardInner">'+
+        '<div class="cardFace cardBack">?</div>'+
+        '<div class="cardFace cardFront">'+card.symbol+'</div>'+
+      '</div>';
+    el.addEventListener("click",()=>tryFlip(i));
+    boardEl.appendChild(el);
+  });
+}
+
+function tryFlip(i){
+  if(boardLocked)return;
+  const card=cards[i];
+  if(card.flipped||card.matched)return;
+  if(flippedIndices.length>=2)return;
+
+  card.flipped=true;
+  flippedIndices.push(i);
+  render();
+
+  if(flippedIndices.length===1 && moveCount===0 && matchedPairs===0 && !timerHandle){
+    startTimer();
+  }
+
+  if(flippedIndices.length===2){
+    moveCount++;
+    document.getElementById("moveCount").textContent=moveCount;
+    boardLocked=true;
+    const [a,b]=flippedIndices;
+    if(cards[a].symbol===cards[b].symbol){
+      cards[a].matched=true;
+      cards[b].matched=true;
+      matchedPairs++;
+      flippedIndices=[];
+      boardLocked=false;
+      render();
+      if(matchedPairs===SYMBOLS.length){
+        finishGame();
+      }
+    }else{
+      setTimeout(()=>{
+        cards[a].flipped=false;
+        cards[b].flipped=false;
+        flippedIndices=[];
+        boardLocked=false;
+        render();
+      },800);
+    }
+  }
+}
+
+function finishGame(){
+  stopTimer();
+  document.getElementById("finalMoves").textContent=moveCount;
+  document.getElementById("finalTime").textContent=formatTime(elapsedSec);
+  document.getElementById("winOverlay").classList.add("show");
+  renderChainBox("chainBox");
+}
+
+function startGame(){
+  document.getElementById("winOverlay").classList.remove("show");
+  stopTimer();
+  moveCount=0;
+  matchedPairs=0;
+  flippedIndices=[];
+  boardLocked=false;
+  elapsedSec=0;
+  document.getElementById("moveCount").textContent="0";
+  document.getElementById("timeCount").textContent="00:00";
+
+  const pairSymbols=shuffleArray([...SYMBOLS,...SYMBOLS]);
+  cards=pairSymbols.map(symbol=>({symbol,flipped:false,matched:false}));
+  render();
+}
+
+startGame();
+</script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#070a10">
+<title>SCI FUN RACE PART 2 2027 — Colour Sequence</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;width:100%;min-height:100%}
+body{
+  background:
+    radial-gradient(circle at 20% 15%, rgba(239,68,68,.16), transparent 42%),
+    radial-gradient(circle at 85% 20%, rgba(168,85,247,.16), transparent 42%),
+    radial-gradient(circle at 50% 90%, rgba(250,204,21,.14), transparent 45%),
+    #070a10;
+  color:#fff;font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:20px 16px 40px;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(250,204,21,.55);
+  background:rgba(250,204,21,.08);border-radius:999px;padding:7px 16px;
+  font-size:11px;letter-spacing:2px;color:#fde68a;font-weight:800;margin-bottom:10px;
+}
+h1{
+  font-size:clamp(20px,6vw,28px);font-weight:900;letter-spacing:1px;
+  margin:2px 0 4px;text-align:center;
+}
+.sub{color:#8d99ad;font-size:13px;text-align:center;margin-bottom:16px;max-width:340px}
+
+.statusPill{
+  display:inline-flex;align-items:center;gap:8px;background:#0e1420;border:1.5px solid #263043;
+  border-radius:999px;padding:9px 18px;margin-bottom:18px;font-size:12px;font-weight:800;
+  letter-spacing:.5px;color:#94a3b8;
+}
+.statusPill.watch{color:#fde68a;border-color:rgba(250,204,21,.5)}
+.statusPill.turn{color:#4ade80;border-color:rgba(74,222,128,.5)}
+
+.statsRow{display:flex;gap:10px;margin-bottom:20px}
+.statBox{
+  background:#0e1420;border:1px solid #263043;border-radius:14px;
+  padding:10px 18px;text-align:center;min-width:84px;
+}
+.statBox b{display:block;font-size:20px;font-weight:900}
+.statBox span{display:block;font-size:10px;color:#64748b;letter-spacing:1px;margin-top:2px}
+
+.board{
+  width:min(320px,86vw);
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);
+  gap:10px;
+}
+.tile{
+  aspect-ratio:1/1;border-radius:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 -8px 0 rgba(0,0,0,.18),0 10px 22px rgba(0,0,0,.3);
+  opacity:.55;transition:opacity .12s ease,transform .1s ease;
+}
+.tile.lit{opacity:1;transform:scale(1.05)}
+.tile.wrong{opacity:1;filter:brightness(1.6)}
+.tile.RED{background:#ef4444}
+.tile.BLUE{background:#3b82f6}
+.tile.GREEN{background:#22c55e}
+.tile.YELLOW{background:#facc15}
+.tile.PURPLE{background:#a855f7}
+.tile.ORANGE{background:#f97316}
+
+.controls{display:flex;gap:12px;margin-top:24px}
+.btn{
+  border:0;border-radius:14px;padding:13px 22px;font-weight:800;font-size:14px;
+  cursor:pointer;background:#202938;color:#e2e8f0;
+}
+.btn.shuffle{background:linear-gradient(135deg,#facc15,#f59e0b);color:#1a1200}
+
+.hint{color:#4f5b70;font-size:11px;margin-top:18px;text-align:center;max-width:300px}
+
+/* ---- Completion overlay ---- */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(3,6,12,.96);
+  align-items:center;justify-content:center;text-align:center;z-index:50;padding:24px;
+}
+.overlay.show{display:flex}
+.overlayCard{max-width:380px}
+.checkIcon{font-size:clamp(60px,16vw,90px);animation:popIn .5s ease}
+@keyframes popIn{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+.doneTitle{font-size:clamp(24px,7vw,34px);font-weight:900;letter-spacing:1px;margin:8px 0 6px;color:#4ade80}
+.doneSub{color:#c7cfdd;font-size:14px;line-height:1.6;margin-bottom:20px}
+.doneStats{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
+.doneStats .statBox{background:rgba(255,255,255,.05)}
+.showStaffBox{
+  background:rgba(74,222,128,.1);border:1.5px solid rgba(74,222,128,.5);
+  border-radius:16px;padding:16px;font-size:13px;color:#bbf7d0;font-weight:700;line-height:1.5;
+}
+.qrBox{
+  background:rgba(59,130,246,.1);border:1.5px solid rgba(59,130,246,.5);
+  border-radius:16px;padding:18px;
+}
+.qrLabel{font-size:13px;font-weight:800;color:#bfdbfe;margin-bottom:12px}
+.qrImg{width:180px;height:180px;border-radius:12px;background:#fff;padding:8px;display:block;margin:0 auto}
+.qrFallback{color:#fca5a5;font-size:12px;padding:20px}
+.qrSub{font-size:12px;color:#93c5fd;margin-top:12px}
+.qrLink{display:inline-block;margin-top:10px;font-size:12px;color:#60a5fa;text-decoration:underline}
+.playAgainBtn{
+  margin-top:18px;background:none;border:0;color:#64748b;font-size:12px;
+  text-decoration:underline;cursor:pointer;padding:8px;
+}
+</style>
+</head>
+<body>
+<span class="badge">🏁 SCI FUN RACE PART 2 2027</span>
+<h1>🎵 COLOUR SEQUENCE</h1>
+<div class="sub">Watch the colours flash, then tap them back in the SAME order. Each round adds one more colour.</div>
+
+<div class="statusPill" id="statusPill">GET READY…</div>
+
+<div class="statsRow">
+  <div class="statBox"><b id="levelCount">0/8</b><span>LEVEL</span></div>
+  <div class="statBox"><b id="timeCount">00:00</b><span>TIME</span></div>
+</div>
+
+<div id="board" class="board">
+  <div class="tile RED" data-colour="RED"></div>
+  <div class="tile BLUE" data-colour="BLUE"></div>
+  <div class="tile GREEN" data-colour="GREEN"></div>
+  <div class="tile YELLOW" data-colour="YELLOW"></div>
+  <div class="tile PURPLE" data-colour="PURPLE"></div>
+  <div class="tile ORANGE" data-colour="ORANGE"></div>
+</div>
+
+<div class="controls">
+  <button class="btn shuffle" id="restartBtn" onclick="startGame()">🔀 RESTART</button>
+</div>
+
+<div class="hint">Get it wrong and you go back to Level 1 — watch closely!</div>
+
+<div class="overlay" id="winOverlay">
+  <div class="overlayCard">
+    <div class="checkIcon">✅</div>
+    <div class="doneTitle">TASK COMPLETED!</div>
+    <div class="doneSub">You memorised an 8-colour sequence — impressive!</div>
+    <div class="doneStats">
+      <div class="statBox"><b id="finalLevel">8/8</b><span>LEVEL</span></div>
+      <div class="statBox"><b id="finalTime">00:00</b><span>TIME</span></div>
+      <div class="statBox"><b id="finalResets">0</b><span>RESETS</span></div>
+    </div>
+    <div id="chainBox"></div>
+    <button class="playAgainBtn" onclick="startGame()">Play again</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="chain-logic.js"></script>
+<script>
+const COLOURS=["RED","BLUE","GREEN","YELLOW","PURPLE","ORANGE"];
+const TARGET_LEVEL=8;
+const PLAYBACK_TILE_MS=520;
+const PLAYBACK_GAP_MS=220;
+const ROUND_PAUSE_MS=700;
+const FAIL_PAUSE_MS=1100;
+
+let sequence=[];
+let playerIndex=0;
+let accepting=false;
+let resets=0;
+let timerHandle=null;
+let elapsedSec=0;
+let running=false;
+let playbackTimeouts=[];
+
+function formatTime(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+function startTimer(){
+  stopTimer();
+  elapsedSec=0;
+  document.getElementById("timeCount").textContent=formatTime(0);
+  timerHandle=setInterval(()=>{
+    elapsedSec++;
+    document.getElementById("timeCount").textContent=formatTime(elapsedSec);
+  },1000);
+}
+function stopTimer(){
+  clearInterval(timerHandle);
+  timerHandle=null;
+}
+
+function setStatus(text,mode){
+  const pill=document.getElementById("statusPill");
+  pill.textContent=text;
+  pill.className="statusPill"+(mode?" "+mode:"");
+}
+
+function updateLevelStat(){
+  document.getElementById("levelCount").textContent=sequence.length+"/"+TARGET_LEVEL;
+}
+
+function getTile(colour){
+  return document.querySelector('.tile[data-colour="'+colour+'"]');
+}
+
+function clearPlaybackTimeouts(){
+  playbackTimeouts.forEach(t=>clearTimeout(t));
+  playbackTimeouts=[];
+}
+
+function nextRound(){
+  if(!running)return;
+  sequence.push(COLOURS[Math.floor(Math.random()*COLOURS.length)]);
+  updateLevelStat();
+  playSequence();
+}
+
+function playSequence(){
+  accepting=false;
+  playerIndex=0;
+  setStatus("WATCH THE SEQUENCE…","watch");
+  clearPlaybackTimeouts();
+
+  sequence.forEach((colour,i)=>{
+    const onTime=i*(PLAYBACK_TILE_MS+PLAYBACK_GAP_MS);
+    playbackTimeouts.push(setTimeout(()=>{
+      if(!running)return;
+      getTile(colour).classList.add("lit");
+    },onTime));
+    playbackTimeouts.push(setTimeout(()=>{
+      if(!running)return;
+      getTile(colour).classList.remove("lit");
+    },onTime+PLAYBACK_TILE_MS));
+  });
+
+  const totalTime=sequence.length*(PLAYBACK_TILE_MS+PLAYBACK_GAP_MS);
+  playbackTimeouts.push(setTimeout(()=>{
+    if(!running)return;
+    accepting=true;
+    setStatus("YOUR TURN — REPEAT IT!","turn");
+  },totalTime+150));
+}
+
+function handleTap(colour){
+  if(!running||!accepting)return;
+  const tile=getTile(colour);
+  tile.classList.add("lit");
+  setTimeout(()=>tile.classList.remove("lit"),150);
+
+  if(colour===sequence[playerIndex]){
+    playerIndex++;
+    if(playerIndex===sequence.length){
+      accepting=false;
+      if(sequence.length>=TARGET_LEVEL){
+        finishGame();
+      }else{
+        setStatus("✅ NICE! NEXT ROUND…","watch");
+        setTimeout(nextRound,ROUND_PAUSE_MS);
+      }
+    }
+  }else{
+    accepting=false;
+    resets++;
+    tile.classList.add("wrong");
+    setStatus("❌ WRONG — BACK TO LEVEL 1","");
+    setTimeout(()=>{
+      tile.classList.remove("wrong");
+      sequence=[];
+      updateLevelStat();
+      setTimeout(nextRound,FAIL_PAUSE_MS);
+    },350);
+  }
+}
+
+document.querySelectorAll(".tile").forEach(el=>{
+  el.addEventListener("click",()=>handleTap(el.dataset.colour));
+});
+
+function finishGame(){
+  running=false;
+  stopTimer();
+  clearPlaybackTimeouts();
+  document.getElementById("finalLevel").textContent=sequence.length+"/"+TARGET_LEVEL;
+  document.getElementById("finalTime").textContent=formatTime(elapsedSec);
+  document.getElementById("finalResets").textContent=resets;
+  document.getElementById("winOverlay").classList.add("show");
+  renderChainBox("chainBox");
+}
+
+function startGame(){
+  document.getElementById("winOverlay").classList.remove("show");
+  clearPlaybackTimeouts();
+  stopTimer();
+
+  sequence=[];
+  playerIndex=0;
+  accepting=false;
+  resets=0;
+  running=true;
+  updateLevelStat();
+  setStatus("GET READY…","");
+
+  startTimer();
+  setTimeout(nextRound,700);
+}
+
+startGame();
+</script>
+</body>
+</html>

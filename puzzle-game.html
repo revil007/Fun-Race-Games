@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#070a10">
+<title>SCI FUN RACE PART 2 2027 — Puzzle Challenge</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;width:100%;min-height:100%}
+body{
+  background:
+    radial-gradient(circle at 20% 15%, rgba(59,130,246,.18), transparent 42%),
+    radial-gradient(circle at 85% 20%, rgba(168,85,247,.16), transparent 42%),
+    radial-gradient(circle at 50% 90%, rgba(34,197,94,.14), transparent 45%),
+    #070a10;
+  color:#fff;font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:20px 16px 40px;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(250,204,21,.55);
+  background:rgba(250,204,21,.08);border-radius:999px;padding:7px 16px;
+  font-size:11px;letter-spacing:2px;color:#fde68a;font-weight:800;margin-bottom:10px;
+}
+h1{
+  font-size:clamp(20px,6vw,28px);font-weight:900;letter-spacing:1px;
+  margin:2px 0 4px;text-align:center;
+}
+.sub{color:#8d99ad;font-size:13px;text-align:center;margin-bottom:18px;max-width:340px}
+
+.statsRow{display:flex;gap:10px;margin-bottom:16px}
+.statBox{
+  background:#0e1420;border:1px solid #263043;border-radius:14px;
+  padding:10px 18px;text-align:center;min-width:84px;
+}
+.statBox b{display:block;font-size:20px;font-weight:900}
+.statBox span{display:block;font-size:10px;color:#64748b;letter-spacing:1px;margin-top:2px}
+
+.board{
+  width:min(340px,88vw);aspect-ratio:1/1;
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+  gap:8px;background:#0b1018;border:1px solid #202938;border-radius:20px;padding:8px;
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
+.cell{
+  border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(30px,9vw,44px);font-weight:900;cursor:pointer;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.28);
+  transition:transform .12s ease;
+}
+.cell:active{transform:scale(.94)}
+.cell.blank{background:transparent;box-shadow:none;cursor:default}
+.cell.moving{transition:transform .15s ease}
+
+.controls{display:flex;gap:12px;margin-top:22px}
+.btn{
+  border:0;border-radius:14px;padding:13px 22px;font-weight:800;font-size:14px;
+  cursor:pointer;background:#202938;color:#e2e8f0;
+}
+.btn.shuffle{background:linear-gradient(135deg,#facc15,#f59e0b);color:#1a1200}
+
+.hint{color:#4f5b70;font-size:11px;margin-top:18px;text-align:center;max-width:300px}
+
+/* ---- Completion overlay ---- */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(3,6,12,.96);
+  align-items:center;justify-content:center;text-align:center;z-index:50;padding:24px;
+}
+.overlay.show{display:flex}
+.overlayCard{max-width:380px}
+.checkIcon{font-size:clamp(60px,16vw,90px);animation:popIn .5s ease}
+@keyframes popIn{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+.doneTitle{font-size:clamp(24px,7vw,34px);font-weight:900;letter-spacing:1px;margin:8px 0 6px;color:#4ade80}
+.doneSub{color:#c7cfdd;font-size:14px;line-height:1.6;margin-bottom:22px}
+.doneStats{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
+.doneStats .statBox{background:rgba(255,255,255,.05)}
+.showStaffBox{
+  background:rgba(74,222,128,.1);border:1.5px solid rgba(74,222,128,.5);
+  border-radius:16px;padding:16px;font-size:13px;color:#bbf7d0;font-weight:700;line-height:1.5;
+}
+.qrBox{
+  background:rgba(59,130,246,.1);border:1.5px solid rgba(59,130,246,.5);
+  border-radius:16px;padding:18px;
+}
+.qrLabel{font-size:13px;font-weight:800;color:#bfdbfe;margin-bottom:12px}
+.qrImg{width:180px;height:180px;border-radius:12px;background:#fff;padding:8px;display:block;margin:0 auto}
+.qrFallback{color:#fca5a5;font-size:12px;padding:20px}
+.qrSub{font-size:12px;color:#93c5fd;margin-top:12px}
+.qrLink{display:inline-block;margin-top:10px;font-size:12px;color:#60a5fa;text-decoration:underline}
+.playAgainBtn{
+  margin-top:18px;background:none;border:0;color:#64748b;font-size:12px;
+  text-decoration:underline;cursor:pointer;padding:8px;
+}
+</style>
+</head>
+<body>
+<span class="badge">🏁 SCI FUN RACE PART 2 2027</span>
+<h1>🧩 PUZZLE CHALLENGE</h1>
+<div class="sub">Slide the tiles back into order — 1 to 8, blank in the bottom-right corner. Solve it to get your password!</div>
+
+<div class="statsRow">
+  <div class="statBox"><b id="moveCount">0</b><span>MOVES</span></div>
+  <div class="statBox"><b id="timeCount">00:00</b><span>TIME</span></div>
+</div>
+
+<div id="board" class="board"></div>
+
+<div class="controls">
+  <button class="btn shuffle" id="shuffleBtn" onclick="shuffleBoard()">🔀 SHUFFLE / RESTART</button>
+</div>
+
+<div class="hint">Tap any tile next to the empty space to slide it.</div>
+
+<div class="overlay" id="winOverlay">
+  <div class="overlayCard">
+    <div class="checkIcon">✅</div>
+    <div class="doneTitle">TASK COMPLETED!</div>
+    <div class="doneSub">Great job — the puzzle is solved.</div>
+    <div class="doneStats">
+      <div class="statBox"><b id="finalMoves">0</b><span>MOVES</span></div>
+      <div class="statBox"><b id="finalTime">00:00</b><span>TIME</span></div>
+    </div>
+    <div id="chainBox"></div>
+    <button class="playAgainBtn" onclick="closeOverlayAndShuffle()">Play again</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="chain-logic.js"></script>
+<script>
+const SIZE=3; // 3x3 board, 8 tiles + 1 blank
+const SOLVED=[1,2,3,4,5,6,7,8,0]; // 0 = blank
+let board=[...SOLVED];
+let blankIndex=8;
+let moveCount=0;
+let timerHandle=null;
+let elapsedSec=0;
+let solved=true; // true right after a fresh solved/shuffled state check
+
+function idxToRowCol(i){ return [Math.floor(i/SIZE), i%SIZE]; }
+
+function isAdjacent(a,b){
+  const [r1,c1]=idxToRowCol(a);
+  const [r2,c2]=idxToRowCol(b);
+  return (r1===r2 && Math.abs(c1-c2)===1) || (c1===c2 && Math.abs(r1-r2)===1);
+}
+
+function render(){
+  const el=document.getElementById("board");
+  el.innerHTML="";
+  board.forEach((val,i)=>{
+    const cell=document.createElement("div");
+    cell.className="cell"+(val===0?" blank":"");
+    cell.textContent=val===0?"":val;
+    cell.addEventListener("click",()=>tryMove(i));
+    el.appendChild(cell);
+  });
+}
+
+function tryMove(i){
+  if(!isAdjacent(i,blankIndex))return;
+  [board[i],board[blankIndex]]=[board[blankIndex],board[i]];
+  blankIndex=i;
+  moveCount++;
+  document.getElementById("moveCount").textContent=moveCount;
+  if(moveCount===1)startTimer();
+  render();
+  checkWin();
+}
+
+function checkWin(){
+  const isSolved=board.every((v,i)=>v===SOLVED[i]);
+  if(isSolved && moveCount>0){
+    stopTimer();
+    document.getElementById("finalMoves").textContent=moveCount;
+    document.getElementById("finalTime").textContent=formatTime(elapsedSec);
+    document.getElementById("winOverlay").classList.add("show");
+    renderChainBox("chainBox");
+  }
+}
+
+function formatTime(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+function startTimer(){
+  stopTimer();
+  elapsedSec=0;
+  document.getElementById("timeCount").textContent=formatTime(0);
+  timerHandle=setInterval(()=>{
+    elapsedSec++;
+    document.getElementById("timeCount").textContent=formatTime(elapsedSec);
+  },1000);
+}
+
+function stopTimer(){
+  clearInterval(timerHandle);
+  timerHandle=null;
+}
+
+// Guarantee a SOLVABLE shuffle by performing many random valid slides
+// from the solved state, instead of a random permutation (which is only
+// solvable half the time for a sliding puzzle).
+function shuffleBoard(){
+  document.getElementById("winOverlay").classList.remove("show");
+  stopTimer();
+  board=[...SOLVED];
+  blankIndex=8;
+  moveCount=0;
+  elapsedSec=0;
+  document.getElementById("moveCount").textContent="0";
+  document.getElementById("timeCount").textContent="00:00";
+
+  let lastBlank=-1;
+  const shuffleMoves=120;
+  for(let n=0;n<shuffleMoves;n++){
+    const [r,c]=idxToRowCol(blankIndex);
+    const neighbours=[];
+    if(r>0)neighbours.push(blankIndex-SIZE);
+    if(r<SIZE-1)neighbours.push(blankIndex+SIZE);
+    if(c>0)neighbours.push(blankIndex-1);
+    if(c<SIZE-1)neighbours.push(blankIndex+1);
+    const candidates=neighbours.filter(x=>x!==lastBlank);
+    const pick=candidates[Math.floor(Math.random()*candidates.length)];
+    [board[pick],board[blankIndex]]=[board[blankIndex],board[pick]];
+    lastBlank=blankIndex;
+    blankIndex=pick;
+  }
+  render();
+}
+
+function closeOverlayAndShuffle(){
+  shuffleBoard();
+}
+
+shuffleBoard();
+</script>
+</body>
+</html>
