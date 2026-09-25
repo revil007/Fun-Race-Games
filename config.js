@@ -8,20 +8,20 @@
 //    HOSTING-SETUP.md for step-by-step instructions.
 //
 // 2) Set BASE_URL below to the exact address where they live,
-//    ENDING WITH A SLASH. Example:
-//    "https://yourname.github.io/fun-race-games/"
+//    ENDING WITH A SLASH.
 //
 // 3) List every game file in GAME_ORDER, in the order teams
 //    must play them. When you add more games later, just add
 //    the filename to this list — nothing else needs to change
 //    in any of the game files themselves.
 //
-// 4) "all-completed.html" is the LAST stop — it's not a game,
-//    just a celebration screen ("🏆 ALL GAMES COMPLETED!") that
-//    shows the final "show staff to get your password" message.
-//    Keep it last in the list. Replace "game4.html" below with
-//    your actual 4th game's filename once it's ready — until
-//    then this entry is just a placeholder.
+// 4) The LAST entry in GAME_ORDER does NOT need to be a special
+//    "completed" page. chain-logic.js automatically detects
+//    whichever game is listed last and shows the "show staff
+//    to get your password" message right on that game's own
+//    completion screen instead of a QR code — so the final game
+//    in the list doubles as the finish line. No separate
+//    all-completed.html file is needed.
 // ============================================================
 
 const BASE_URL = "https://revil007.github.io/Fun-Race-Games/";
@@ -30,6 +30,6 @@ const GAME_ORDER = [
   "puzzle-game.html",
   "reflex-game.html",
   "memory-match-game.html",
-  "game4.html",              // <-- ganti dengan nama fail Game 4 anda
-  "all-completed.html"
+  "game4.html",
+  "game5.html"
 ];
