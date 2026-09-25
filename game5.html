@@ -111,6 +111,12 @@ h1{
   opacity:.35;cursor:default;text-decoration:none;pointer-events:none;
 }
 
+.gameNumBadge{
+  display:inline-block;margin-top:8px;padding:6px 16px;border-radius:999px;
+  background:linear-gradient(135deg,#facc15,#f59e0b);color:#1a1200;
+  font-weight:900;font-size:13px;letter-spacing:.5px;
+}
+
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:60}
 .confettiPiece{
   position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;
@@ -125,7 +131,8 @@ h1{
 <body>
 <div class="confetti" id="confetti"></div>
 
-<span class="badge">🏁 SCI FUN RACE PART 2 2027</span>
+<span class="badge">🏁 SCI FUN RACE PART 2 2027</span><br>
+<span class="gameNumBadge">GAME 5 / 5</span>
 <h1>🔨 WHACK-A-MOLE</h1>
 <div class="sub">Tap the moles as fast as you can! Reach 22 hits to finish.</div>
 
