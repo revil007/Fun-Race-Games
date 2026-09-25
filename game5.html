@@ -107,6 +107,9 @@ h1{
   margin-top:18px;background:none;border:0;color:#64748b;font-size:12px;
   text-decoration:underline;cursor:pointer;padding:8px;
 }
+.playAgainBtn.locked{
+  opacity:.35;cursor:default;text-decoration:none;pointer-events:none;
+}
 </style>
 </head>
 <body>
@@ -141,26 +144,27 @@ h1{
 
 <div class="overlay" id="winOverlay">
   <div class="overlayCard">
-    <div class="checkIcon">✅</div>
-    <div class="doneTitle">TASK COMPLETED!</div>
-    <div class="doneSub">20 moles whacked — lightning reflexes!</div>
+    <div class="checkIcon">🏆</div>
+    <div class="doneTitle">CONGRATULATIONS!<br>ALL TASKS COMPLETED</div>
+    <div class="doneSub">15 moles whacked — and that's every challenge in the race done!</div>
     <div class="doneStats">
-      <div class="statBox"><b id="finalHits">20/20</b><span>HITS</span></div>
+      <div class="statBox"><b id="finalHits">15/15</b><span>HITS</span></div>
       <div class="statBox"><b id="finalTime">00:00</b><span>TIME</span></div>
     </div>
     <div id="chainBox"></div>
-    <button class="playAgainBtn" onclick="startGame()">Play again</button>
+    <button class="playAgainBtn" id="playAgainBtn" onclick="startGame()">Play again</button>
   </div>
 </div>
 
 <script src="config.js"></script>
 <script src="chain-logic.js"></script>
 <script>
-const TARGET_HITS=20;
+const TARGET_HITS=15;
 const HOLE_COUNT=9;
-const MOLE_UP_MS_START=900;
-const MOLE_UP_MS_MIN=420;
+const MOLE_UP_MS_START=950;
+const MOLE_UP_MS_MIN=480;
 const SPAWN_GAP_MS=260;
+const PLAY_AGAIN_LOCK_MS=1400;
 
 let hits=0;
 let running=false;
@@ -263,6 +267,25 @@ function finishGame(){
   document.getElementById("finalTime").textContent=formatTime(elapsedSec);
   document.getElementById("winOverlay").classList.add("show");
   renderChainBox("chainBox");
+  lockPlayAgainBtn();
+}
+
+function lockPlayAgainBtn(){
+  // Because this game ends on a fast, repeated tapping motion, a
+  // player's last whack can land right where "Play again" appears a
+  // split-second later, accidentally restarting the game and hiding
+  // the QR/staff message they were about to show. Ignore taps on
+  // that button for a short window after the completion screen
+  // shows, so only a deliberate tap (after they've stopped and
+  // looked) can trigger it.
+  const btn=document.getElementById("playAgainBtn");
+  btn.disabled=true;
+  btn.classList.add("locked");
+  clearTimeout(lockPlayAgainBtn._t);
+  lockPlayAgainBtn._t=setTimeout(()=>{
+    btn.disabled=false;
+    btn.classList.remove("locked");
+  },PLAY_AGAIN_LOCK_MS);
 }
 
 function startGame(){
