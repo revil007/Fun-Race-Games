@@ -8,9 +8,18 @@
 // It figures out which game the player just finished (by
 // matching the current page's filename against GAME_ORDER in
 // config.js) and shows either:
-//   - a QR code + link to the NEXT game in the chain, or
+//   - a QR code for the NEXT game in the chain (QR ONLY — no
+//     tappable link), or
 //   - the final "show staff to get your password" message, if
 //     this was the LAST game in GAME_ORDER.
+//
+// Why QR-only, no direct link: each game is meant to be played by
+// a DIFFERENT team member. A QR code shown on one phone can only
+// be scanned by a SECOND phone's camera — that naturally forces
+// the phone to be handed to the next player. A tappable link,
+// though, opens on the SAME phone/browser that just finished,
+// letting one person keep playing every game solo. So this file
+// intentionally does not render an <a href> to the next game.
 //
 // Requires config.js to be loaded first (defines BASE_URL and
 // GAME_ORDER).
@@ -37,11 +46,10 @@ function renderChainBox(containerId){
 
     el.innerHTML=
       '<div class="qrBox">'+
-        '<div class="qrLabel">📱 Pass the phone to the next team member!</div>'+
+        '<div class="qrLabel">📱 Pass the phone to the NEXT team member!</div>'+
         '<img class="qrImg" src="'+qrSrc+'" alt="QR code to the next challenge" '+
           'onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'qrFallback\',textContent:\'Could not load QR image — check your internet connection.\'}))">'+
-        '<div class="qrSub">Scan this QR code to start the next challenge.</div>'+
-        '<a class="qrLink" href="'+nextUrl+'" target="_blank" rel="noopener">Or tap here to open it directly</a>'+
+        '<div class="qrSub">The NEXT player scans this with a DIFFERENT phone to start their challenge.</div>'+
       '</div>';
   }catch(e){
     el.innerHTML=staffBoxHTML();
