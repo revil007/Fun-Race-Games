@@ -110,17 +110,29 @@ h1{
 .playAgainBtn.locked{
   opacity:.35;cursor:default;text-decoration:none;pointer-events:none;
 }
+
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:60}
+.confettiPiece{
+  position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(600deg);opacity:.4}
+}
 </style>
 </head>
 <body>
+<div class="confetti" id="confetti"></div>
+
 <span class="badge">🏁 SCI FUN RACE PART 2 2027</span>
 <h1>🔨 WHACK-A-MOLE</h1>
-<div class="sub">Tap the moles as fast as you can! Reach 20 hits before time runs out.</div>
+<div class="sub">Tap the moles as fast as you can! Reach 22 hits to finish.</div>
 
 <div class="statusPill" id="statusPill">GET READY…</div>
 
 <div class="statsRow">
-  <div class="statBox"><b id="hitCount">0/20</b><span>HITS</span></div>
+  <div class="statBox"><b id="hitCount">0/22</b><span>HITS</span></div>
   <div class="statBox"><b id="timeCount">00:00</b><span>TIME</span></div>
 </div>
 
@@ -145,25 +157,22 @@ h1{
 <div class="overlay" id="winOverlay">
   <div class="overlayCard">
     <div class="checkIcon">🏆</div>
-    <div class="doneTitle">CONGRATULATIONS!<br>ALL TASKS COMPLETED</div>
-    <div class="doneSub">15 moles whacked — and that's every challenge in the race done!</div>
-    <div class="doneStats">
-      <div class="statBox"><b id="finalHits">15/15</b><span>HITS</span></div>
-      <div class="statBox"><b id="finalTime">00:00</b><span>TIME</span></div>
-    </div>
+    <div class="doneTitle">ALL GAMES COMPLETED!</div>
+    <div class="doneSub">Every challenge in the chain is done. Amazing teamwork from your whole team!</div>
     <div id="chainBox"></div>
-    <button class="playAgainBtn" id="playAgainBtn" onclick="startGame()">Play again</button>
   </div>
 </div>
 
 <script src="config.js"></script>
 <script src="chain-logic.js"></script>
 <script>
-const TARGET_HITS=15;
+// Difficulty pass: more hits needed, moles stay up for less time (and
+// ramp down to a lower floor), and less idle time between spawns.
+const TARGET_HITS=22;
 const HOLE_COUNT=9;
-const MOLE_UP_MS_START=950;
-const MOLE_UP_MS_MIN=480;
-const SPAWN_GAP_MS=260;
+const MOLE_UP_MS_START=700;
+const MOLE_UP_MS_MIN=300;
+const SPAWN_GAP_MS=180;
 const PLAY_AGAIN_LOCK_MS=1400;
 
 let hits=0;
@@ -263,29 +272,28 @@ function finishGame(){
   clearTimeout(downTimeout);
   document.querySelectorAll(".hole").forEach(h=>h.classList.remove("up","hit"));
   setStatus("✅ DONE!","done");
-  document.getElementById("finalHits").textContent=hits+"/"+TARGET_HITS;
-  document.getElementById("finalTime").textContent=formatTime(elapsedSec);
   document.getElementById("winOverlay").classList.add("show");
   renderChainBox("chainBox");
-  lockPlayAgainBtn();
+  launchConfetti();
+  // No "Play again" button on this final screen anymore — it's
+  // replaced by chain-logic's "show staff" message, so there's
+  // nothing left here that a stray last-tap could accidentally
+  // trigger.
 }
 
-function lockPlayAgainBtn(){
-  // Because this game ends on a fast, repeated tapping motion, a
-  // player's last whack can land right where "Play again" appears a
-  // split-second later, accidentally restarting the game and hiding
-  // the QR/staff message they were about to show. Ignore taps on
-  // that button for a short window after the completion screen
-  // shows, so only a deliberate tap (after they've stopped and
-  // looked) can trigger it.
-  const btn=document.getElementById("playAgainBtn");
-  btn.disabled=true;
-  btn.classList.add("locked");
-  clearTimeout(lockPlayAgainBtn._t);
-  lockPlayAgainBtn._t=setTimeout(()=>{
-    btn.disabled=false;
-    btn.classList.remove("locked");
-  },PLAY_AGAIN_LOCK_MS);
+function launchConfetti(){
+  const colours=["#facc15","#22c55e","#3b82f6","#ef4444","#a855f7","#f97316"];
+  const el=document.getElementById("confetti");
+  el.innerHTML="";
+  for(let i=0;i<60;i++){
+    const piece=document.createElement("div");
+    piece.className="confettiPiece";
+    piece.style.left=Math.random()*100+"vw";
+    piece.style.background=colours[Math.floor(Math.random()*colours.length)];
+    piece.style.animationDuration=(2.5+Math.random()*2)+"s";
+    piece.style.animationDelay=(Math.random()*1.2)+"s";
+    el.appendChild(piece);
+  }
 }
 
 function startGame(){

@@ -112,7 +112,7 @@ h1{
 </div>
 
 <div class="statsRow">
-  <div class="statBox"><b id="hitCount">0/8</b><span>HITS</span></div>
+  <div class="statBox"><b id="hitCount">0/12</b><span>HITS</span></div>
   <div class="statBox"><b id="timeCount">00:00</b><span>TIME</span></div>
 </div>
 
@@ -130,7 +130,7 @@ h1{
     <div class="doneTitle">TASK COMPLETED!</div>
     <div class="doneSub">Nice reflexes — target reached.</div>
     <div class="doneStats">
-      <div class="statBox"><b id="finalHits">8/8</b><span>HITS</span></div>
+      <div class="statBox"><b id="finalHits">12/12</b><span>HITS</span></div>
       <div class="statBox"><b id="finalTime">00:00</b><span>TIME</span></div>
       <div class="statBox"><b id="finalAvg">0ms</b><span>AVG REACT</span></div>
       <div class="statBox"><b id="finalFalse">0</b><span>WRONG TAPS</span></div>
@@ -143,22 +143,28 @@ h1{
 <script src="config.js"></script>
 <script src="chain-logic.js"></script>
 <script>
+// Difficulty pass: 2 extra decoy colours (odds of a trial being the
+// target drop from 1-in-6 to 1-in-8, so more patience/focus needed),
+// less time per trial to react, trials come faster back-to-back, and
+// a harsher wrong-tap lockout.
 const COLOURS=[
   {name:"RED",hex:"#ef4444"},
   {name:"BLUE",hex:"#3b82f6"},
   {name:"GREEN",hex:"#22c55e"},
   {name:"YELLOW",hex:"#facc15"},
   {name:"PURPLE",hex:"#a855f7"},
-  {name:"ORANGE",hex:"#f97316"}
+  {name:"ORANGE",hex:"#f97316"},
+  {name:"PINK",hex:"#ec4899"},
+  {name:"CYAN",hex:"#06b6d4"}
 ];
-const HITS_NEEDED=8;
-const TRIAL_WINDOW_MS=850;   // how long a colour stays "active" (tappable)
-const GAP_MIN_MS=350, GAP_MAX_MS=900; // idle gap between trials
+const HITS_NEEDED=12;
+const TRIAL_WINDOW_MS=620;   // how long a colour stays "active" (tappable)
+const GAP_MIN_MS=250, GAP_MAX_MS=650; // idle gap between trials
 // A wrong tap locks the circle for this long — no new trial runs during
 // the lockout, so spam-tapping every colour is actively SLOWER than
 // waiting and reacting only to the real target (spam gets penalised on
-// ~5 out of 6 trials, since only 1 in 6 colours is ever the target).
-const PENALTY_MS=1800;
+// ~7 out of 8 trials, since only 1 in 8 colours is ever the target).
+const PENALTY_MS=2200;
 
 let target=null;
 let hits=0, misses=0, falseTaps=0;
