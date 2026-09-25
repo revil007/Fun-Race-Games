@@ -93,9 +93,44 @@ h1{
   margin-top:18px;background:none;border:0;color:#64748b;font-size:12px;
   text-decoration:underline;cursor:pointer;padding:8px;
 }
+
+/* ---- Start-of-race password lock ---- */
+.lockOverlay{
+  position:fixed;inset:0;background:#070a10;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;
+}
+.lockOverlay.hidden{display:none}
+.lockIcon{font-size:clamp(50px,14vw,74px);margin-bottom:6px}
+.lockTitle{font-size:clamp(20px,6vw,26px);font-weight:900;letter-spacing:1px;margin:4px 0 6px}
+.lockSub{color:#8d99ad;font-size:13px;max-width:300px;margin-bottom:24px;line-height:1.5}
+.lockInput{
+  width:min(260px,80vw);background:#0e1420;border:1.5px solid #263043;border-radius:14px;
+  padding:14px 16px;font-size:18px;letter-spacing:3px;text-align:center;color:#fff;
+  font-weight:800;text-transform:uppercase;margin-bottom:14px;
+}
+.lockInput:focus{outline:none;border-color:#3b82f6}
+.lockBtn{
+  border:0;border-radius:14px;padding:13px 30px;font-weight:800;font-size:14px;
+  cursor:pointer;background:linear-gradient(135deg,#facc15,#f59e0b);color:#1a1200;
+}
+.lockError{color:#fca5a5;font-size:12px;margin-top:12px;height:14px}
+.content{display:none}
+.content.unlocked{display:flex;flex-direction:column;align-items:center;width:100%}
 </style>
 </head>
 <body>
+
+<div class="lockOverlay" id="lockOverlay">
+  <div class="lockIcon">🔒</div>
+  <div class="lockTitle">SCI FUN RACE PART 2 2027</div>
+  <div class="lockSub">Ask the staff/emcee for the start password to begin the race.</div>
+  <input class="lockInput" id="lockInput" type="text" placeholder="PASSWORD" autocomplete="off" autocapitalize="characters">
+  <button class="lockBtn" onclick="tryUnlock()">🔓 UNLOCK &amp; START</button>
+  <div class="lockError" id="lockError"></div>
+</div>
+
+<div class="content" id="content">
 <span class="badge">🏁 SCI FUN RACE PART 2 2027</span>
 <h1>🧩 PUZZLE CHALLENGE</h1>
 <div class="sub">Slide the tiles back into order — 1 to 8, blank in the bottom-right corner. Solve it to get your password!</div>
@@ -112,6 +147,7 @@ h1{
 </div>
 
 <div class="hint">Tap any tile next to the empty space to slide it.</div>
+</div>
 
 <div class="overlay" id="winOverlay">
   <div class="overlayCard">
@@ -130,6 +166,31 @@ h1{
 <script src="config.js"></script>
 <script src="chain-logic.js"></script>
 <script>
+// ============================================================
+// START-OF-RACE PASSWORD
+// Change this to whatever password you'll announce/give staff to
+// hand out at check-in. Not case-sensitive. Only THIS first game
+// is locked — once a team is through here they carry on through
+// the rest of the chain normally.
+// ============================================================
+const START_PASSWORD = "RACE2027";
+
+function tryUnlock(){
+  const input=document.getElementById("lockInput");
+  const entered=input.value.trim().toUpperCase();
+  if(entered===START_PASSWORD.toUpperCase() && entered.length>0){
+    document.getElementById("lockOverlay").classList.add("hidden");
+    document.getElementById("content").classList.add("unlocked");
+    shuffleBoard();
+  }else{
+    document.getElementById("lockError").textContent="Wrong password — try again.";
+    input.select();
+  }
+}
+document.getElementById("lockInput").addEventListener("keydown",(e)=>{
+  if(e.key==="Enter")tryUnlock();
+});
+
 const SIZE=3; // 3x3 board, 8 tiles + 1 blank
 const SOLVED=[1,2,3,4,5,6,7,8,0]; // 0 = blank
 let board=[...SOLVED];
@@ -237,7 +298,8 @@ function closeOverlayAndShuffle(){
   shuffleBoard();
 }
 
-shuffleBoard();
+// Board is NOT shuffled/built here anymore — it only starts after
+// tryUnlock() confirms the correct password (see above).
 </script>
 </body>
 </html>
